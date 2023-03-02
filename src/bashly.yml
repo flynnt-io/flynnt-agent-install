@@ -1,0 +1,35 @@
+name: flynnt
+help: Installs, updates or removes this server from a flynnt cluster
+version: 0.1.0
+
+commands:
+- name: install
+  alias: i
+  help: Join this server as a node to a cluster
+
+  flags:
+  - long: --nodename
+    short: -n
+    required: true
+    arg: nodename
+    help: "Name of the node. If it doesn't exist yet, one will be created with default options."
+  - long: --clustername
+    short: -c
+    required: true
+    arg: clustername
+    help: "Name of the cluster that this node should be joined to."
+
+  examples:
+  - flynnt install -n testnode1 -c my-cluster
+  - API_KEY=mykey flynnt install -n testnode1 -c my-cluster
+
+  environment_variables:
+  - name: api_key
+    help: "If you don't want to use OIDC authentication, you can use an api key for automated installs."
+
+- name: remove
+  alias: u
+  help: Remove flynnt and all its dependencies from this server
+
+  examples:
+    - flynnt remove
