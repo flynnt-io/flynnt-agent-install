@@ -21,6 +21,13 @@ We used these tools
 - [Bashly](https://bashly.dannyb.co/) for generating boilerplate CLI code
 - [ShellCheck](https://www.shellcheck.net/) for code quality
 
+## Supported Operating Systems
+
+These operating systems are currently tested and supported
+
+- Ubuntu 20.04 LTS
+- Ubuntu 22.04 LTS
+
 ## Getting Started
 
 Either download the script from the [releases](https://github.com/flynnt-io/flynnt-agent-install/releases/latest) page or execute it directly, like this:
