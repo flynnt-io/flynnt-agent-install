@@ -10,6 +10,7 @@ install_wireguard() {
   check_os_version
   install_wireguard_package
   configure_and_start_wireguard "$wireguard_configuration"
+  configure_and_start_dns_reresolver
 }
 
 check_if_running_in_virtualization() {
@@ -123,4 +124,17 @@ configure_and_start_wireguard() {
     echo -e "You can check if WireGuard is running with: systemctl status wg-quick@flynnt-wg"
     echo -e "If you get something like \"Cannot find device flynnt-wg\", please reboot!"
   fi
+}
+
+configure_and_start_dns_reresolver() {
+  reresolvedns_timer > /etc/systemd/system/wireguard_reresolve-dns.timer
+  reresolvedns_service > /etc/systemd/system/wireguard_reresolve-dns.service
+  mkdir -p /opt/flynnt
+  reresolvedns_script > /opt/flynnt/reresolve-dns.sh
+  chmod +x /opt/flynnt/reresolve-dns.sh
+
+  systemctl daemon-reload
+
+  systemctl start "wireguard_reresolve-dns.timer"
+  systemctl enable "wireguard_reresolve-dns.timer"
 }
