@@ -1,6 +1,11 @@
 name: flynnt
 help: Installs, updates or removes this server from a flynnt cluster
-version: 0.1.0
+version: 0.2.1
+
+environment_variables:
+  - name: api_endpoint
+    help: "HTTP Endpoint for the flynnt API. Defaults to https://api.app.flynnt.io."
+    default: "https://api.app.flynnt.io"
 
 commands:
 - name: install

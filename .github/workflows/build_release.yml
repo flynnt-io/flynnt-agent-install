@@ -24,10 +24,10 @@ jobs:
           ruby-version: '3.2'
           bundler-cache: true
       - name: Install bashly
-        run: gem install bashly -v 1.1.0
+        run: gem install bashly -v 1.1.6
       - name: Compile flynnt agent installer
         run: bashly generate
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: flynnt-script
           path: flynnt
@@ -38,7 +38,7 @@ jobs:
     if: startsWith(github.event.ref, 'refs/tags/v')
     needs: [build]
     steps:
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: flynnt-script
       - name: Create Release

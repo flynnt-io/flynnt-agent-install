@@ -20,6 +20,7 @@ isRoot
 nodename=${args[--nodename]}
 clustername=${args[--clustername]}
 API_KEY=${API_KEY:-}
+API_ENDPOINT=${API_ENDPOINT:-}
 
 echo "Will try to join this server as '$nodename' to the cluster '$clustername'"
 # authenticate and grab config
@@ -31,7 +32,7 @@ then
 
   ## from here https://stackoverflow.com/questions/55607925/extract-json-value-with-sed
   ## POST https://api.app.flynnt.io/device/token to create a token request
-  curlResult=$(curl -s -X POST -H "Content-Type: application/json" --silent https://api.app.flynnt.io/device/token)
+  curlResult=$(curl -s -X POST -H "Content-Type: application/json" --silent "$API_ENDPOINT/device/token")
   userCode=$(echo "$curlResult" | grep -oP '"userCode":\s*\K[^\s,]*(?=\s*[,}])')
   userCode=${userCode:1:-1}
   deviceCode=$(echo "$curlResult" | grep -oP '"deviceCode":\s*\K[^\s,]*(?=\s*[,}])')
@@ -48,7 +49,7 @@ then
   ## Todo: We need to listen to return codes, not only the payload that is returned to detect errors/denied in the flow
   while true
   do
-    curlResult=$(curl -s -X GET --show-error -H "Content-Type: application/json" "https://api.app.flynnt.io/device/token?deviceCode=$deviceCode")
+    curlResult=$(curl -s -X GET --show-error -H "Content-Type: application/json" "$API_ENDPOINT/device/token?deviceCode=$deviceCode")
     if [ -z "$curlResult" ]
     then
       ## printf '%s' "."
@@ -74,7 +75,7 @@ fi
 ##echo "We made it out of the loop with a token: $token"
 
 ## create node if it does not exist yet
-add_node_request=$(curl -w "%{http_code}\n" -s -X POST -H "Content-Type: application/json" -H "Authorization: $token" -d "{\"nodeName\":\"$nodename\"}" "https://api.app.flynnt.io/cluster/${clustername}/node")
+add_node_request=$(curl -w "%{http_code}\n" -s -X POST -H "Content-Type: application/json" -H "Authorization: $token" -d "{\"nodeName\":\"$nodename\"}" "$API_ENDPOINT/cluster/${clustername}/node")
 if [[ ${add_node_request: -3} != "200" ]]; then
   echo "Encountered error while adding node to the cluster: "
   echo "$add_node_request"
@@ -82,7 +83,7 @@ if [[ ${add_node_request: -3} != "200" ]]; then
 fi
 
 ## next, download the node config
-curlResult=$(curl -w "%{http_code}\n" -s -X GET -H "Content-Type: application/json" -H "Authorization: $token" "https://api.app.flynnt.io/cluster/$clustername/node/$nodename/config")
+curlResult=$(curl -w "%{http_code}\n" -s -X GET -H "Content-Type: application/json" -H "Authorization: $token" "$API_ENDPOINT/cluster/$clustername/node/$nodename/config")
 if [[ ${curlResult: -3} != "200" ]]; then
   echo "Encountered error while getting node config: "
   echo "$curlResult"
@@ -98,9 +99,11 @@ k8sVersion=${k8sVersion:1:-1}
 
 echo "We will now install the node..."
 # install wireguard
+echo "Installing wireguard... (Step 1/2)"
 install_wireguard "$wireguardConfig"
 
 # install k3s
+echo "Installing k3s... (Step 2/2)"
 install_k3s "$k3sConfig" "$k8sVersion"
 
 echo "Node successfully installed. Done!"

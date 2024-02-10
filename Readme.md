@@ -60,12 +60,12 @@ We are using [bashly](https://github.com/DannyBen/bashly) to compile this.
 
 This project was created like this:
 ```bash
-docker run --rm -it --user $(id -u):$(id -g) --volume "$PWD:/app" dannyben/bashly:1.1.1 init
+docker run --rm -it --user $(id -u):$(id -g) --volume "$PWD:/app" dannyben/bashly:1.1.6 init
 ```
 
 To recompile the project, use this:
 ```bash
-docker run --rm -it --user $(id -u):$(id -g) --volume "$PWD:/app" dannyben/bashly:1.1.1 generate
+docker run --rm -it --user $(id -u):$(id -g) --volume "$PWD:/app" dannyben/bashly:1.1.6 generate
 ```
 
 Static analysis with shellcheck:
