@@ -1,0 +1,80 @@
+name: Test
+on:
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: write
+
+concurrency: test
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::386089424926:role/github-to-aws-deployment
+          role-session-name: GitHubActions
+          aws-region: eu-central-1
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.1.7"
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+          bundler-cache: true
+      - name: Install bashly
+        run: gem install bashly -v 1.1.6
+      - name: Compile flynnt agent installer
+        run: bashly generate
+      - name: test
+        env:
+          K8S_TOKEN: ${{ secrets.k8s_token }}
+          SOPS_AGE_KEY: ${{ secrets.sops_age_key }}
+        run: |
+          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" && chmod +x kubectl
+          
+          terraform -chdir=tests/terraform init
+          terraform -chdir=tests/terraform apply -auto-approve
+          
+          # bash loop 5 minutes and check every minute if the node is ready
+          echo "Checking if all nodes are ready..."
+          for i in {1..5}; do
+            sleep 60
+            echo "Attempt $i."
+        
+            # loop through a list of nodes and check if all nodes are ready
+            # one can check if the node is ready by comparing it to the string "True"
+            list_of_nodes=("test-ubuntu-22")
+            all_nodes_ready=true
+            for node in "${list_of_nodes[@]}"; do
+              node_status=$(kubectl --token="$K8S_TOKEN" --server="https://solitary-base-6289.cloud.flynnt.io" get nodes "$node" -o=jsonpath="{.status.conditions[?(@.type=='Ready')].status}" || true)
+              if [ "$node_status" != "True" ]; then
+                all_nodes_ready=false
+                echo "Node $node is not ready."
+                break
+              fi
+            done
+        
+            if [ "$all_nodes_ready" = "true" ]; then
+              echo "All nodes are ready."
+              break
+            fi
+          done
+      - name: Cleanup
+        env:
+          K8S_TOKEN: ${{ secrets.k8s_token }}
+          SOPS_AGE_KEY: ${{ secrets.sops_age_key }}
+        if: always()
+        run: |
+          terraform -chdir=tests/terraform destroy -auto-approve
+          
+          # loop through all nodes and kubectl delete them in k8s cluster
+          list_of_nodes=("test-ubuntu-22")
+          for node in "${list_of_nodes[@]}"; do
+            kubectl --token="$K8S_TOKEN" --server="https://solitary-base-6289.cloud.flynnt.io" delete node "$node" || true
+          done
