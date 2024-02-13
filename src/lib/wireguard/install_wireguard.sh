@@ -69,7 +69,7 @@ install_wireguard_package() {
 	# Install WireGuard from package repository
 	if [[ ${OS} == 'ubuntu' ]] || [[ ${OS} == 'debian' && ${VERSION_ID} -gt 10 ]]; then
 		apt-get -qqq update
-		apt-get -qqq install -y wireguard iptables resolvconf > /dev/null
+		apt-get -qqq install -y wireguard iptables > /dev/null
 	elif [[ ${OS} == 'debian' ]]; then
 		if ! grep -rqs "^deb .* buster-backports" /etc/apt/; then
 			echo "deb http://deb.debian.org/debian buster-backports main" >/etc/apt/sources.list.d/backports.list

@@ -1,6 +1,6 @@
 name: flynnt
 help: Installs, updates or removes this server from a flynnt cluster
-version: 0.2.1
+version: 0.2.2
 
 environment_variables:
   - name: api_endpoint
