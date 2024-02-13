@@ -2,3 +2,6 @@
 *.iml
 
 ./flynnt
+
+tests/terraform/secrets.yaml
+tests/terraform/.terraform
