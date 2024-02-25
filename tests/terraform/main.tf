@@ -1,11 +1,11 @@
 terraform {
   required_providers {
     hcloud = {
-      source = "hetznercloud/hcloud"
+      source  = "hetznercloud/hcloud"
       version = "1.44.1"
     }
     sops = {
-      source = "carlpett/sops"
+      source  = "carlpett/sops"
       version = "1.0.0"
     }
   }
@@ -22,7 +22,7 @@ data "sops_file" "secrets" {
 }
 
 variable "flynnt_cluster" {
-  type = string
+  type        = string
   description = "The cluster name that will be used for tests"
 }
 
@@ -47,10 +47,6 @@ resource "hcloud_server" "ubuntu_22_04" {
 
   ssh_keys = [data.hcloud_ssh_key.flynnt_key.name]
 
-  public_net {
-    ipv4_enabled = true
-    ipv6_enabled = false
-  }
   labels = {
     project = "flynnt-agent-install"
   }
@@ -72,10 +68,6 @@ resource "hcloud_server" "ubuntu_20_04" {
 
   ssh_keys = [data.hcloud_ssh_key.flynnt_key.name]
 
-  public_net {
-    ipv4_enabled = true
-    ipv6_enabled = false
-  }
   labels = {
     project = "flynnt-agent-install"
   }
@@ -97,10 +89,6 @@ resource "hcloud_server" "debian_12" {
 
   ssh_keys = [data.hcloud_ssh_key.flynnt_key.name]
 
-  public_net {
-    ipv4_enabled = true
-    ipv6_enabled = false
-  }
   labels = {
     project = "flynnt-agent-install"
   }
