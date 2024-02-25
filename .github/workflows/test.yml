@@ -49,7 +49,7 @@ jobs:
         
             # loop through a list of nodes and check if all nodes are ready
             # one can check if the node is ready by comparing it to the string "True"
-            list_of_nodes=("test-ubuntu-22" "test-ubuntu-20")
+            list_of_nodes=("test-ubuntu-22" "test-ubuntu-20" "test-debian-12")
             all_nodes_ready=true
             for node in "${list_of_nodes[@]}"; do
               node_status=$(kubectl --token="$K8S_TOKEN" --server="https://solitary-base-6289.cloud.flynnt.io" get nodes "$node" -o=jsonpath="{.status.conditions[?(@.type=='Ready')].status}" || true)
@@ -74,7 +74,7 @@ jobs:
           terraform -chdir=tests/terraform destroy -auto-approve
           
           # loop through all nodes and kubectl delete them in k8s cluster
-          list_of_nodes=("test-ubuntu-22" "test-ubuntu-20")
+          list_of_nodes=("test-ubuntu-22" "test-ubuntu-20" "test-debian-12")
           for node in "${list_of_nodes[@]}"; do
             kubectl --token="$K8S_TOKEN" --server="https://solitary-base-6289.cloud.flynnt.io" delete node "$node" || true
           done
