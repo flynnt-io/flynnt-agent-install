@@ -1,12 +1,17 @@
 #!/bin/bash
 
-echo ""
-read -rp "Do you really want to remove this node from the cluster? [y/n]: " -e REMOVE
-REMOVE=${REMOVE:-n}
-if [[ $REMOVE == 'y' ]]; then
-  remove_wireguard
-  remove_k3s
-else
+# shellcheck disable=SC2154
+if [[ -z ${args[--yes]:-} ]]; then
   echo ""
-  echo "Removal aborted!"
+  # Read from the terminal, as stdin is the script itself when piped from curl.
+  read -rp "Do you really want to remove this node from the cluster? [y/n]: " -e REMOVE < /dev/tty \
+    || die "No terminal available to confirm the removal. Use --yes to skip the prompt."
+  if [[ ${REMOVE:-n} != 'y' ]]; then
+    echo ""
+    echo "Removal aborted!"
+    exit 0
+  fi
 fi
+
+remove_wireguard
+remove_k3s
