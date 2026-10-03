@@ -12,7 +12,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     env:
-      NODES: test-ubuntu-22 test-ubuntu-20 test-debian-12
+      NODES: test-ubuntu-26 test-ubuntu-24 test-debian-13
       K8S_SERVER: https://solitary-base-6289.cloud.flynnt.io
     steps:
       - uses: actions/checkout@v4
