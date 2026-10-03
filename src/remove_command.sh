@@ -15,3 +15,7 @@ fi
 
 remove_wireguard
 remove_k3s
+
+# Reapplies values that other files on the host configure. Values that only the
+# removed flynnt files set stay in effect until the next reboot.
+sysctl -q --system || true
