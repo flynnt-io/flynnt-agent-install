@@ -25,10 +25,10 @@ jobs:
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '3.2'
+          ruby-version: '4.0'
           bundler-cache: true
       - name: Install bashly
-        run: gem install bashly -v 1.1.6
+        run: gem install bashly -v 2.0.0
       - name: Compile flynnt agent installer
         run: bashly generate
       - name: test

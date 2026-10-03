@@ -18,7 +18,7 @@ Functionality contains installing, upgrading and removing the flynnt kubernetes 
 ## Used Tooling
 
 We used these tools
-- [Bashly](https://bashly.dannyb.co/) for generating boilerplate CLI code
+- [Bashly](https://bashly.dev/) for generating boilerplate CLI code
 - [ShellCheck](https://www.shellcheck.net/) for code quality
 
 ## Supported Operating Systems
@@ -56,7 +56,7 @@ API_KEY=<api-key-from-flynnt-dashboard> ./flynnt.sh install -c <clustername> -n 
 ```
 
 ## Compiling
-We are using [bashly](https://github.com/DannyBen/bashly) to compile this.
+We are using [bashly](https://github.com/bashly-framework/bashly) to compile this.
 
 This project was created like this:
 ```bash
@@ -65,7 +65,7 @@ docker run --rm -it --user $(id -u):$(id -g) --volume "$PWD:/app" dannyben/bashl
 
 To recompile the project, use this:
 ```bash
-docker run --rm -it --user $(id -u):$(id -g) --volume "$PWD:/app" dannyben/bashly:1.1.6 generate
+docker run --rm -it --user $(id -u):$(id -g) --volume "$PWD:/app" dannyben/bashly:2.0.0 generate
 ```
 
 Static analysis with shellcheck:
