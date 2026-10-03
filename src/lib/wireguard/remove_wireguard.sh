@@ -1,28 +1,19 @@
 #!/bin/bash
 
 remove_wireguard() {
-  systemctl stop "wg-quick@flynnt-wg"
-  systemctl stop "wireguard_reresolve-dns.timer"
-  systemctl stop "wireguard_reresolve-dns.service"
-  systemctl disable "wg-quick@flynnt-wg"
-  systemctl disable "wireguard_reresolve-dns.timer"
-  systemctl disable "wireguard_reresolve-dns.service"
+  # Units may already be gone after a partial install or an earlier remove.
+  systemctl disable --now "wg-quick@flynnt-wg" "wireguard_reresolve-dns.timer" || true
+  systemctl stop "wireguard_reresolve-dns.service" || true
 
   rm -f /etc/wireguard/flynnt-wg.conf
   rm -f /etc/sysctl.d/flynnt.conf
+  rm -f /etc/systemd/system/wireguard_reresolve-dns.timer
+  rm -f /etc/systemd/system/wireguard_reresolve-dns.service
   rm -rf /opt/flynnt
-  # Reload sysctl
-  sysctl --system
-  # Reload systemd
   systemctl daemon-reload
-  # Check if WireGuard is running
-  systemctl is-active --quiet "wg-quick@flynnt-wg"
-  WG_RUNNING=$?
-  if [[ ${WG_RUNNING} -eq 0 ]]; then
-    echo "WireGuard failed to uninstall properly."
-    exit 1
-  else
-    echo "WireGuard uninstalled successfully."
-    exit 0
+
+  if systemctl is-active --quiet "wg-quick@flynnt-wg"; then
+    die "WireGuard failed to uninstall properly."
   fi
+  echo "WireGuard uninstalled successfully."
 }
