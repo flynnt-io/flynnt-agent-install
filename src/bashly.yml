@@ -42,5 +42,11 @@ commands:
   filters:
   - root
 
+  flags:
+  - long: --yes
+    short: -y
+    help: "Skip the confirmation prompt."
+
   examples:
     - flynnt remove
+    - flynnt remove -y
