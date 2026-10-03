@@ -112,14 +112,10 @@ configure_and_start_wireguard() {
   printf '%b' "net.ipv4.ip_forward = 1\nnet.ipv6.conf.all.forwarding = 1" >/etc/sysctl.d/flynnt.conf
   write_private_file /etc/wireguard/flynnt-wg.conf "$wireguardConfig"
   sysctl -q --system
-  systemctl start "wg-quick@flynnt-wg.service"
   systemctl enable "wg-quick@flynnt-wg.service"
 
-  # Check if WireGuard is running
-  systemctl is-active --quiet "wg-quick@flynnt-wg.service"
-  WG_RUNNING=$?
   # WireGuard might not work if we updated the kernel. Tell the user to reboot
-  if [[ ${WG_RUNNING} -ne 0 ]]; then
+  if ! systemctl start "wg-quick@flynnt-wg.service" || ! systemctl is-active --quiet "wg-quick@flynnt-wg.service"; then
     echo -e "\n$(red WARNING: WireGuard does not seem to be running.)"
     echo -e "You can check if WireGuard is running with: systemctl status wg-quick@flynnt-wg"
     echo -e "If you get something like \"Cannot find device flynnt-wg\", please reboot!"
