@@ -11,6 +11,8 @@ commands:
 - name: install
   alias: i
   help: Join this server as a node to a cluster
+  filters:
+  - root
 
   flags:
   - long: --nodename
@@ -35,6 +37,8 @@ commands:
 - name: remove
   alias: u
   help: Remove flynnt and all its dependencies from this server
+  filters:
+  - root
 
   examples:
     - flynnt remove
