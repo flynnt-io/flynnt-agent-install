@@ -6,7 +6,10 @@ permissions:
   id-token: write
   contents: write
 
-concurrency: test
+# The test servers have fixed names and join a shared cluster, so runs must not overlap.
+concurrency:
+  group: test
+  cancel-in-progress: false
 
 jobs:
   test:
