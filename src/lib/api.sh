@@ -5,7 +5,7 @@
 api_request() {
   local method=$1 path=$2 data=${3:-} response_file
   response_file=$(mktemp)
-  local curl_args=(-sS -X "$method" -H "Content-Type: application/json" -o "$response_file" -w '%{http_code}')
+  local curl_args=(-sS --connect-timeout 10 --max-time 30 -X "$method" -H "Content-Type: application/json" -o "$response_file" -w '%{http_code}')
   if [[ -n ${token:-} ]]; then
     curl_args+=(-H "Authorization: $token")
   fi

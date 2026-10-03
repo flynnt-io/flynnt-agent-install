@@ -6,49 +6,49 @@ nodename=${args[--nodename]}
 clustername=${args[--clustername]}
 API_KEY=${API_KEY:-}
 API_ENDPOINT=${API_ENDPOINT:-}
+token=""
 
 echo "Will try to join this server as '$nodename' to the cluster '$clustername'"
 # authenticate and grab config
 
 if [ -z "$API_KEY" ]
 then
-  ## curl -X POST -H "Content-Type: application/json" https://api.app.flynnt.io/device/token
-  ## {"deviceCode":"xyz","userCode":"abc","verificationUrl":"https://app.flynnt.io/device/ABC"}
-
-  ## from here https://stackoverflow.com/questions/55607925/extract-json-value-with-sed
-  ## POST https://api.app.flynnt.io/device/token to create a token request
-  curlResult=$(curl -s -X POST -H "Content-Type: application/json" --silent "$API_ENDPOINT/device/token")
-  userCode=$(echo "$curlResult" | grep -oP '"userCode":\s*\K[^\s,]*(?=\s*[,}])')
-  userCode=${userCode:1:-1}
-  deviceCode=$(echo "$curlResult" | grep -oP '"deviceCode":\s*\K[^\s,]*(?=\s*[,}])')
-  deviceCode=${deviceCode:1:-1}
-  verificationUrl=$(echo "$curlResult" | grep -oP '"verificationUrl":\s*\K[^\s,]*(?=\s*[,}])')
-  verificationUrl=${verificationUrl:1:-1}
+  ## POST /device/token returns {"deviceCode":"...","userCode":"...","verificationUrl":"..."}
+  api_request POST /device/token
+  if [[ $api_status != 2?? ]]; then
+    die "Could not start authentication (HTTP $api_status): $api_body"
+  fi
+  deviceCode=$(json_string_field deviceCode "$api_body")
+  verificationUrl=$(json_string_field verificationUrl "$api_body")
+  if [[ -z $deviceCode || -z $verificationUrl ]]; then
+    die "Unexpected response when starting authentication: $api_body"
+  fi
   echo "Click here to authenticate yourself: $verificationUrl"
 
-  ## https://unix.stackexchange.com/questions/644343/bash-while-loop-stop-after-a-successful-curl-request
-  ## curl -X GET -H "Content-Type: application/json" https://api.app.flynnt.io/device/token?deviceCode=fQsrBJtwGtaBXGuIX8c6QOYkuTQT6i9PUtZ7FX7R03Nsx7p3teesiGKLk1QEnBvj
-  ## {"token":"xyz"}
-
-  ## Todo: Add max 5 minute timeout
-  ## Todo: We need to listen to return codes, not only the payload that is returned to detect errors/denied in the flow
+  ## GET /device/token?deviceCode=... returns 400 while pending, 404 once the
+  ## request expired or was denied, and 200 {"token":"..."} after approval.
+  deadline=$((SECONDS + 300))
   while true
   do
-    curlResult=$(curl -s -X GET --show-error -H "Content-Type: application/json" "$API_ENDPOINT/device/token?deviceCode=$deviceCode")
-    if [ -z "$curlResult" ]
-    then
-      ## printf '%s' "."
-      true
-    else
-      token=$(echo "$curlResult" | grep -oP '"token":\s*\K[^\s,]*(?=\s*[,}])')
-      token=${token:1:-1}
-      if [ -z "$token" ]
-      then
-        die "Authentication did not work. Please try again."
-      else
+    api_request GET "/device/token?deviceCode=$deviceCode"
+    case $api_status in
+      200)
+        token=$(json_string_field token "$api_body")
+        [[ -n $token ]] || die "Authentication did not work. Please try again."
         echo "Successfully authenticated."
         break
-      fi
+        ;;
+      400)
+        ;;
+      404)
+        die "The authentication request expired or was denied. Please try again."
+        ;;
+      *)
+        die "Unexpected response while waiting for authentication (HTTP $api_status): $api_body"
+        ;;
+    esac
+    if (( SECONDS >= deadline )); then
+      die "Authentication timed out after 5 minutes. Please try again."
     fi
     sleep 5
   done
@@ -56,7 +56,6 @@ else
   echo "API_KEY was set. We will use that for authentication"
   token="Bearer $API_KEY"
 fi
-##echo "We made it out of the loop with a token: $token"
 
 ## create node if it does not exist yet
 api_request POST "/cluster/$clustername/node" "{\"nodeName\":\"$nodename\"}"
