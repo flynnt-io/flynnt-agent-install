@@ -110,7 +110,7 @@ configure_and_start_wireguard() {
   wireguardConfig=$1
   # Enable routing on the server
   printf '%b' "net.ipv4.ip_forward = 1\nnet.ipv6.conf.all.forwarding = 1" >/etc/sysctl.d/flynnt.conf
-  printf '%b' "$wireguardConfig" > /etc/wireguard/flynnt-wg.conf
+  write_private_file /etc/wireguard/flynnt-wg.conf "$wireguardConfig"
   sysctl -q --system
   systemctl start "wg-quick@flynnt-wg.service"
   systemctl enable "wg-quick@flynnt-wg.service"
