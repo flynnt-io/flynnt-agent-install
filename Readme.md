@@ -10,7 +10,7 @@ This repository contains scripts to install flynnt on an agent node.
 </div>
 
 The script is to be executed on the server that should be added to the flynnt cluster.
-Functionality contains installing, upgrading and removing the flynnt kubernetes agent from the node.
+Functionality contains installing and removing the flynnt kubernetes agent from the node.
 
 - [Flynnt](https://flynnt.io)
 - [Flynnt: How to add a node](https://docs.flynnt.io/basics/adding-a-node)
@@ -25,8 +25,9 @@ We used these tools
 
 These operating systems are currently tested and supported
 
-- Ubuntu 20.04 LTS
-- Ubuntu 22.04 LTS
+- Ubuntu 26.04 LTS
+- Ubuntu 24.04 LTS
+- Debian 13
 
 ## Getting Started
 
@@ -54,6 +55,14 @@ export API_KEY=<api-key-from-flynnt-dashboard>
 API_KEY=<api-key-from-flynnt-dashboard> ./flynnt.sh install -c <clustername> -n <nodename>
 
 ```
+
+## Removing a Node
+
+This removes k3s, WireGuard and all flynnt configuration from the server:
+```bash
+./flynnt.sh remove
+```
+The command asks for confirmation. Pass `-y` to skip the prompt in non-interactive environments.
 
 ## Compiling
 We are using [bashly](https://github.com/bashly-framework/bashly) to compile this.
