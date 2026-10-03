@@ -19,11 +19,13 @@ commands:
     short: -n
     required: true
     arg: nodename
+    validate: dns_subdomain
     help: "Name of the node. If it doesn't exist yet, one will be created with default options."
   - long: --clustername
     short: -c
     required: true
     arg: clustername
+    validate: dns_label
     help: "Name of the cluster that this node should be joined to."
 
   examples:
