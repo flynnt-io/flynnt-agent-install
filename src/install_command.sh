@@ -44,8 +44,7 @@ then
       token=${token:1:-1}
       if [ -z "$token" ]
       then
-        echo "Authentication did not work :( Please try again"
-        exit
+        die "Authentication did not work. Please try again."
       else
         echo "Successfully authenticated."
         break
@@ -62,16 +61,12 @@ fi
 ## create node if it does not exist yet
 api_request POST "/cluster/$clustername/node" "{\"nodeName\":\"$nodename\"}"
 if [[ $api_status != 2?? ]]; then
-  echo "Encountered error while adding node to the cluster (HTTP $api_status): "
-  echo "$api_body"
-  exit
+  die "Encountered error while adding node to the cluster (HTTP $api_status): $api_body"
 fi
 
 api_request GET "/cluster/$clustername/node/$nodename/config"
 if [[ $api_status != 2?? ]]; then
-  echo "Encountered error while getting node config (HTTP $api_status): "
-  echo "$api_body"
-  exit
+  die "Encountered error while getting node config (HTTP $api_status): $api_body"
 fi
 wireguardConfig=$(json_string_field wireguard "$api_body")
 k3sConfig=$(json_string_field k3s "$api_body")
