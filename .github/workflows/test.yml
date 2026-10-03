@@ -15,14 +15,14 @@ jobs:
       NODES: test-ubuntu-26 test-ubuntu-24 test-debian-13
       K8S_SERVER: https://solitary-base-6289.cloud.flynnt.io
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v6
         with:
           role-to-assume: arn:aws:iam::386089424926:role/github-to-aws-deployment
           role-session-name: GitHubActions
           aws-region: eu-central-1
-      - uses: hashicorp/setup-terraform@v3
+      - uses: hashicorp/setup-terraform@v4
         with:
           terraform_version: "1.16.5"
       - name: Setup Ruby

@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Run ShellCheck
         uses: ludeeus/action-shellcheck@2.0.0
       - name: Setup Ruby
@@ -27,7 +27,7 @@ jobs:
         run: gem install bashly -v 2.0.0
       - name: Compile flynnt agent installer
         run: bashly generate
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: flynnt-script
           path: flynnt
@@ -38,7 +38,7 @@ jobs:
     if: startsWith(github.event.ref, 'refs/tags/v')
     needs: [build]
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: flynnt-script
       - name: Create Release
