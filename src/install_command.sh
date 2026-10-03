@@ -60,27 +60,22 @@ fi
 ##echo "We made it out of the loop with a token: $token"
 
 ## create node if it does not exist yet
-add_node_request=$(curl -w "%{http_code}\n" -s -X POST -H "Content-Type: application/json" -H "Authorization: $token" -d "{\"nodeName\":\"$nodename\"}" "$API_ENDPOINT/cluster/${clustername}/node")
-if [[ ${add_node_request: -3} != "200" ]]; then
-  echo "Encountered error while adding node to the cluster: "
-  echo "$add_node_request"
+api_request POST "/cluster/$clustername/node" "{\"nodeName\":\"$nodename\"}"
+if [[ $api_status != 2?? ]]; then
+  echo "Encountered error while adding node to the cluster (HTTP $api_status): "
+  echo "$api_body"
   exit
 fi
 
-## next, download the node config
-curlResult=$(curl -w "%{http_code}\n" -s -X GET -H "Content-Type: application/json" -H "Authorization: $token" "$API_ENDPOINT/cluster/$clustername/node/$nodename/config")
-if [[ ${curlResult: -3} != "200" ]]; then
-  echo "Encountered error while getting node config: "
-  echo "$curlResult"
+api_request GET "/cluster/$clustername/node/$nodename/config"
+if [[ $api_status != 2?? ]]; then
+  echo "Encountered error while getting node config (HTTP $api_status): "
+  echo "$api_body"
   exit
 fi
-## TODO: curlResult still has the statuscode attached at the end and is no real json. We don't care for now
-wireguardConfig=$(echo "$curlResult" | grep -oP '"wireguard":\s*\K".*?"')
-wireguardConfig=${wireguardConfig:1:-1}
-k3sConfig=$(echo "$curlResult" | grep -oP '"k3s":\s*\K".*?"')
-k3sConfig=${k3sConfig:1:-1}
-k8sVersion=$(echo "$curlResult" | grep -oP '"k8sVersion":\s*\K".*?"')
-k8sVersion=${k8sVersion:1:-1}
+wireguardConfig=$(json_string_field wireguard "$api_body")
+k3sConfig=$(json_string_field k3s "$api_body")
+k8sVersion=$(json_string_field k8sVersion "$api_body")
 
 echo "We will now install the node..."
 # install wireguard
