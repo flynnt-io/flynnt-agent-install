@@ -2,18 +2,19 @@ terraform {
   required_providers {
     hcloud = {
       source  = "hetznercloud/hcloud"
-      version = "1.44.1"
+      version = "1.69.0"
     }
     sops = {
       source  = "carlpett/sops"
-      version = "1.0.0"
+      version = "1.4.1"
     }
   }
 
   backend "s3" {
-    bucket = "flynnt-tfstate"
-    key    = "flynnt-agent-install/tfstate"
-    region = "eu-central-1"
+    bucket       = "flynnt-tfstate"
+    key          = "flynnt-agent-install/tfstate"
+    region       = "eu-central-1"
+    use_lockfile = true
   }
 }
 
