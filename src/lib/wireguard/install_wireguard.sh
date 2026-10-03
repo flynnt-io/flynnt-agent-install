@@ -39,8 +39,8 @@ check_os_version() {
 		source /etc/os-release
 		OS="${ID}" # debian or ubuntu
 		if [[ ${ID} == "debian" || ${ID} == "raspbian" ]]; then
-			if [[ ${VERSION_ID} -lt 10 ]]; then
-				echo "Your version of Debian (${VERSION_ID}) is not supported. Please use Debian 10 Buster or later"
+			if [[ ${VERSION_ID} -lt 11 ]]; then
+				echo "Your version of Debian (${VERSION_ID}) is not supported. Please use Debian 11 Bullseye or later"
 				exit 1
 			fi
 			OS=debian # overwrite if raspbian
@@ -67,17 +67,9 @@ check_os_version() {
 
 install_wireguard_package() {
 	# Install WireGuard from package repository
-	if [[ ${OS} == 'ubuntu' ]] || [[ ${OS} == 'debian' && ${VERSION_ID} -gt 10 ]]; then
+	if [[ ${OS} == 'ubuntu' ]] || [[ ${OS} == 'debian' ]]; then
 		apt-get -qqq update
 		apt-get -qqq install -y wireguard iptables > /dev/null
-	elif [[ ${OS} == 'debian' ]]; then
-		if ! grep -rqs "^deb .* buster-backports" /etc/apt/; then
-			echo "deb http://deb.debian.org/debian buster-backports main" >/etc/apt/sources.list.d/backports.list
-			apt-get -qqq update
-		fi
-		apt -qqq update
-		apt-get -qqq install -y iptables resolvconf > /dev/null
-		apt-get -qqq install -y -t buster-backports wireguard > /dev/null
 	elif [[ ${OS} == 'fedora' ]]; then
 		if [[ ${VERSION_ID} -lt 32 ]]; then
 			dnf install -y dnf-plugins-core
