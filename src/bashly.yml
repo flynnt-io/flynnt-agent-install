@@ -13,6 +13,9 @@ commands:
   help: Join this server as a node to a cluster
   filters:
   - root
+  dependencies:
+  - curl
+  - systemctl
 
   flags:
   - long: --nodename
@@ -41,6 +44,8 @@ commands:
   help: Remove flynnt and all its dependencies from this server
   filters:
   - root
+  dependencies:
+  - systemctl
 
   flags:
   - long: --yes
