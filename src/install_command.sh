@@ -1,21 +1,6 @@
 #!/bin/bash
 ## inspect_args
 
-## --- use sudo if we are not already root ---
-##SUDO=sudo
-##if [ $(id -u) -eq 0 ]; then
-##    SUDO=
-##fi
-
-isRoot() {
-	if [ "$(id -u)" -ne 0 ]; then
-		echo "As we make changes to the system, you need to run this script as root"
-		exit 1
-	fi
-}
-
-isRoot
-
 # shellcheck disable=SC2154
 nodename=${args[--nodename]}
 clustername=${args[--clustername]}
